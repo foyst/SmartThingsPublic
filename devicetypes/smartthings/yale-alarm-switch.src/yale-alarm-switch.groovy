@@ -60,7 +60,6 @@ def yaleAuthToken () {
 
 // ================================== Login/out Function. Returns cookie for rest of the functions =========
 def login() {
-	def token
 	log.debug "Attempting to login"
 	def paramsLogin = [
 			uri: baseUrl() + endpointToken(),
@@ -71,11 +70,10 @@ def login() {
 	]
 	httpPost(paramsLogin) { responseLogin ->
 		log.debug "Login response is $responseLogin.data"
-		token = responseLogin.data?.access_token
+		state.accessToken = responseLogin.data?.access_token
+		state.refreshToken = responseLogin.data?.refresh_token
 	}
 	log.info "'$device' Logged in"
-	return token
-
 }
 //
 //def logout(token) {
@@ -94,11 +92,12 @@ def poll() {
 	refresh()
 }
 
-def refresh(YaleAlarmState) {
-	def token = login()
+def refresh() {
+	login()
+	def YaleAlarmState
 	def getPanelMetaDataAndFullStatus = [
 			uri: baseUrl() + endpointMode(),
-			headers: ['Authorization' : "Bearer ${token}"]
+			headers: ['Authorization' : "Bearer ${state.accessToken}"]
 	]
 	httpGet(getPanelMetaDataAndFullStatus) {	response ->
 		log.debug "'$device' REFRESH - response = '$response.data'"
@@ -128,11 +127,12 @@ def refresh(YaleAlarmState) {
 // ===================  Arm Function. Performs arming function ====================
 def armAway() {
 	def reply = ''
-	def token = login()
 	def paramsArm = [
 			uri: baseUrl() + endpointMode(),
 			body: [area: 1, mode: "away"],
-			headers: ['Authorization' : "Bearer ${token}"]
+			headers: ['Authorization' : "Bearer ${state.accessToken}"],
+			requestContentType: "application/x-www-form-urlencoded",
+			contentType: "application/json"
 	]
 	httpPost(paramsArm) {	response -> // Arming Function in away mode
 		reply = response.data.message
@@ -153,11 +153,12 @@ def armAway() {
 
 def armStay() {
 	def reply = ''
-	def token = login()
 	def paramsArm = [
 			uri: baseUrl() + endpointMode(),
 			body: [area: 1, mode: "away"],
-			headers: ['Authorization' : "Bearer ${token}"]
+			headers: ['Authorization' : "Bearer ${state.accessToken}"],
+			requestContentType: "application/x-www-form-urlencoded",
+			contentType: "application/json"
 	]
 	httpPost(paramsArm) {	response -> // Arming Function in away mode
 		reply = response.data.message
@@ -179,11 +180,12 @@ def armStay() {
 
 def disarm() {
 	def reply = ''
-	def token = login()
 	def paramsDisarm = [
 			uri: baseUrl() + endpointMode(),
 			body: [area: 1, mode: "disarm"],
-			headers: ['Authorization' : "Bearer ${token}"]
+			headers: ['Authorization' : "Bearer ${state.accessToken}"],
+			requestContentType: "application/x-www-form-urlencoded",
+			contentType: "application/json"
 	]
 	httpPost(paramsDisarm) {	response ->
 		reply = response.data.message
