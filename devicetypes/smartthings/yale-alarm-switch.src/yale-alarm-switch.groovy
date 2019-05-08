@@ -129,7 +129,7 @@ def armAway() {
 	def reply = ''
 	def paramsArm = [
 			uri: baseUrl() + endpointMode(),
-			body: [area: 1, mode: "away"],
+			body: [area: 1, mode: "arm"],
 			headers: ['Authorization' : "Bearer ${state.accessToken}"],
 			requestContentType: "application/x-www-form-urlencoded",
 			contentType: "application/json"
@@ -155,7 +155,7 @@ def armStay() {
 	def reply = ''
 	def paramsArm = [
 			uri: baseUrl() + endpointMode(),
-			body: [area: 1, mode: "away"],
+			body: [area: 1, mode: "home"],
 			headers: ['Authorization' : "Bearer ${state.accessToken}"],
 			requestContentType: "application/x-www-form-urlencoded",
 			contentType: "application/json"
